@@ -1,0 +1,34 @@
+{
+    "assertConceptsPass": [
+        {
+            "id": "1",
+            "annotations": [
+                {
+                    "typeId": "xx",
+                    "languageDialectCode": "en"
+                }
+            ]
+        }
+    ],
+    "assertConceptsFail": [
+        {
+            "id": "1",
+            "active" : true,
+            "annotations": [
+                {
+                    "id": "1",
+                    "typeId": "YY",
+                    "languageDialectCode": ""
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "annotations": [
+                {
+                    "typeId": "zz"
+                }
+            ]
+        }
+    ]
+}
