@@ -32,13 +32,17 @@ function Set<String> getParentIdsForConcept(Concept concept, Boolean release) {
 		}
 		return activeParentConceptIds;
 }
+
+function Set<String> getTopLevelHierarchiesForConcept(Concept concept, ConceptService conceptService) {
+		return conceptService.findTopLevelHierarchiesOfConcept(concept);
+}
+
 // Note - this rule uses international edition language refsets
 rule "A concept's semantic tag should be compatible with those of the active parent(s)."
 	dialect "mvel"
 	when
 		c : Concept(active)
-		topLevelHierarchies : HashSet(size > 0) from collect(String() from conceptService.findTopLevelHierarchiesOfConcept(c))
-		topLevelFSNs : ArrayList(size > 0) from collect(String() from descriptionService.getFSNs(topLevelHierarchies, Constants.US_EN_LANG_REFSET, Constants.GB_EN_LANG_REFSET))
+		topLevelFSNs : ArrayList(size > 0) from collect(String() from descriptionService.getFSNs(getTopLevelHierarchiesForConcept(c, conceptService), Constants.US_EN_LANG_REFSET, Constants.GB_EN_LANG_REFSET))
 		d : Description(conceptId == c.id
 						&& active
 						&& typeId == Constants.FSN
@@ -60,7 +64,7 @@ rule "Matching semantic tag should not allow adding a subtype as a parent."
 		d : Description(conceptId == c.id && active && typeId == Constants.FSN && (acceptabilityMap["900000000000509007"] == Constants.ACCEPTABILITY_PREFERRED || acceptabilityMap["900000000000508004"] == Constants.ACCEPTABILITY_PREFERRED) && !DescriptionHelper.isAllParentSemanticTagMatchWithTerm(term,parentFSNs))
 		termSemanticTag : String() from DescriptionHelper.getTag(d.term)
 		parentIds : ArrayList(size > 0) from collect( String() from descriptionService.findParentsNotContainingSemanticTag(c, termSemanticTag, Constants.US_EN_LANG_REFSET,Constants.GB_EN_LANG_REFSET))
-		ancestorIds : HashSet(size > 0) from collect( String() from conceptService.findStatedAncestorsOfConcepts(parentIds))
+		ancestorIds : Set(size > 0) from conceptService.findStatedAncestorsOfConcepts(parentIds)
 		fsns : ArrayList(size > 0) from collect( String() from descriptionService.getFSNs(ancestorIds,Constants.US_EN_LANG_REFSET,Constants.GB_EN_LANG_REFSET))
 		SemanticTags : ArrayList(size > 0) from collect( String() from DescriptionHelper.getTags(fsns))
 		eval(SemanticTags contains termSemanticTag)
