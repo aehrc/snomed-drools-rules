@@ -1,6 +1,7 @@
 import org.ihtsdo.drools.domain.Concept
 import org.ihtsdo.drools.domain.Annotation
 import org.ihtsdo.drools.response.InvalidContent
+import org.ihtsdo.drools.response.Severity
 import java.util.ArrayList
 
 global java.util.List invalidContent
@@ -11,8 +12,7 @@ rule "Language dialect code must not be empty in active annotations."
 		c: Concept(active)
 		a: Annotation(active, conceptId == c.id, languageDialectCode == null || languageDialectCode.trim().isEmpty())
 	then
-		InvalidContent invalid = new InvalidContent("85373171-6055-494a-a336-2d64e6da6480",
-				a, "Active annotations must have a non-empty language dialect code.");
+		InvalidContent invalid = new InvalidContent("85373171-6055-494a-a336-2d64e6da6480", a, "Active annotations must have a non-empty language dialect code.", Severity.WARNING);
 		invalid.ignorePublishedCheck();
 		invalidContent.add(invalid);
 end
