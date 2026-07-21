@@ -20,7 +20,7 @@ function boolean containsAbbreviationForDrugUnit(String term) {
 	String spTerm = " " + stripTerm;
 	String[] abbrevs = { "mg", "g", "ml", "mcg", "unit", "units", "IU", "mEq", "mL",  "MBq", "ppm" };
 	for (int i = 0; i < abbrevs.length; i++) {
-		if (stripTerm.contains(" " + abbrevs[i] + " ") || 
+		if (stripTerm.contains(" " + abbrevs[i] + " ") ||
 			stripTerm.endsWith(" " + abbrevs[i]) ||
 			stripTerm.endsWith("/" + abbrevs[i]) ||
 			spTerm.contains(" " +  abbrevs[i] + "/") ||
@@ -29,7 +29,7 @@ function boolean containsAbbreviationForDrugUnit(String term) {
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -48,7 +48,7 @@ rule "Terms containing drug unit abbreviations should be marked as Only initial 
 	dialect "mvel"
 	when
 		c : Concept(active == true)
-		statedAncestors : ArrayList(size > 0) from collect( String() from conceptService.findStatedAncestorsOfConcepts(Collections.singletonList(c.id)))
+		statedAncestors : ArrayList(size > 0) from collect( String() from conceptService.findStatedAncestorsOfConcept(c))
 		d : Description(statedAncestors contains "373873005" &&active == true && typeId != Constants.TEXT_DEFINITION && conceptId == c.id && containsAbbreviationForDrugUnit(term) && caseSignificanceId == Constants.ENTIRE_TERM_CASE_INSENSITIVE)
 	then
 		invalidContent.add(new InvalidContent("3f89c2c1-3a90-4fbc-8f57-1b37fd2d0b5a",
